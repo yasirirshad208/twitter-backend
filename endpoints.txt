@@ -1,0 +1,136 @@
+
+// User url
+http://localhost:5000/api/user
+
+
+router.post('/register', registerUser);
+
+const {name, email, password, confirmPassword, phone } = req.body;
+
+router.put('/send/otp', sendOtp)
+
+const {email} = req.body;
+
+router.put('/otp/verification', verifyOtp)
+
+const {otp} = req.body;
+
+router.post('/login', login)
+
+const { email, password } = req.body;
+
+router.put('/password/reset', resetPassword);
+
+const { email, password, confirmPassword } = req.body;
+
+router.put("/change/password", updateUserPassword)
+
+const { email, password, newPassword, confirmPassword } = req.body;
+
+router.post("/verify/token", verifyToken)
+
+const { token } = req.body;
+
+// admin access
+router.get("/get/all", authorized, getAllUsers)
+
+//token
+const {authorization} = req.headers
+
+router.put("/update/admin-status/:id", authorized, updateAdminStatus)
+
+//token
+const {authorization} = req.headers
+
+
+
+// Twitter url
+http://localhost:5000/api/twitter
+
+
+router.get("/user/details", userDetails);
+
+const {username} = req.query
+
+router.get("/user/tweets", userTweets);
+
+const {username, limit} = req.query
+
+router.get("/user/tweets/continuation", userTweetsContinuation);
+
+const {username, limit, continuation_token} = req.query
+
+router.get("/user/following", userFollowing);
+
+const {user_id, limit} = req.query
+
+router.get("/user/following/continuation", userFollowingContinuation);
+
+const {user_id, limit, continuation_token} = req.query
+
+router.get("/user/followers", userFollowers);
+
+const {user_id, limit} = req.query
+
+router.get("/user/followers/continuation", userFollowersContinuation);
+
+const {user_id, limit, continuation_token} = req.query
+
+router.get("/user/likes", userLikes);
+
+const {user_id, limit} = req.query
+
+router.get("/user/likes/continuation", userLikesContinuation);
+
+const {user_id, limit, continuation_token} = req.query
+
+router.get("/tweet/replies", tweetReplies);
+
+const {tweet_id} = req.query
+
+router.get("/tweet/replies/continuation", tweetRepliesContinuation);
+
+const {tweet_id, continuation_token} = req.query
+
+router.get("/tweet/details", tweetDetails);
+
+const {tweet_id} = req.query
+
+router.get("/search", search);
+
+const {query, limit, start_date, end_date} = req.query
+
+router.get("/search/continuation", searchContinuation);
+
+const {query, limit, start_date, end_date, continuation_token} = req.query
+
+router.post("/trend/add", authorized, addTrend);
+
+const {trend} = req.body
+//token
+const {authorization} = req.headers
+
+router.put("/trend/update/:id", authorized, updateTrend);
+
+const {trend} = req.body
+//token
+const {authorization} = req.headers
+
+router.delete("/trend/delete/:id", authorized, deleteTrend);
+
+//token
+const {authorization} = req.headers
+
+
+
+// subscribe url
+http://localhost:5000/api/subscribe
+
+router.post("/email", subscribe)
+
+const {email} = req.email
+
+router.get("/subscribers/all", authorized, getAllSubscribers)
+
+//token
+const {authorization} = req.headers
