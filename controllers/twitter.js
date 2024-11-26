@@ -322,18 +322,16 @@ export const tweetDetails = async(req, res, next)=>{
 }
 
 export const search = async(req, res, next)=>{
-    const {query, limit, start_date, end_date} = req.query
+    const {query, start_date, } = req.query
     try {
-        const url = `https://${process.env.API_HOST}/tweet/search`;
+        const url = `https://${process.env.API_HOST}/search/search`;
         const options = {
             method: 'GET',
             url,
             params: {
                 query,
-                limit,
                 section:"top",
                 start_date,
-                end_date
             },
             headers: {
                 'x-rapidapi-key': process.env.API_KEY,
@@ -448,3 +446,186 @@ export const deleteTrend = async(req, res, next)=>{
         return next(new ErrorHandler(error.message, 500));
     }
 }
+
+// export const getTwitterTrends = async (req, res, next) => {
+//     try {
+//         const url = `https://${process.env.API_HOST}/trends/`;
+//         const options = {
+//             method: 'GET',
+//             url,
+//             params: {
+//                 woeid: 1,  // Worldwide trends
+//             },
+//             headers: {
+//                 'x-rapidapi-key': process.env.API_KEY,
+//                 'x-rapidapi-host': process.env.API_HOST
+//             },
+//         };
+
+//         const response = await axios.request(options);
+//         const data = response.data;
+
+//         // Function to check if the trend name is in English
+//         const isEnglish = (text) => /^[A-Za-z0-9\s#]+$/.test(text);
+
+//         // Filter trends that are in English
+//         const englishTrends = data[0].trends.filter((trend) => isEnglish(trend.name));
+
+//         return new ResponseHandler(res, 200, true, "", englishTrends);
+//     } catch (error) {
+//         return next(new ErrorHandler(error.message, 500));
+//     }
+// };
+
+
+export const getTwitterTrends = async (req, res, next) => {
+    try {
+        const trendsUrl = `https://${process.env.API_HOST}/trends/`;
+        const trendsOptions = {
+            method: 'GET',
+            url: trendsUrl,
+            params: {
+                woeid: 1, // Worldwide trends
+            },
+            headers: {
+                'x-rapidapi-key': process.env.API_KEY,
+                'x-rapidapi-host': process.env.API_HOST
+            },
+        };
+
+        const trendsResponse = await axios.request(trendsOptions);
+        const data = trendsResponse.data;
+
+        // Function to check if the trend name is in English
+        const isEnglish = (text) => /^[A-Za-z0-9\s#]+$/.test(text);
+
+        // Filter trends that are in English
+        const englishTrends = data[0].trends.filter((trend) => isEnglish(trend.name));
+
+        // Get first three trends
+        const topThreeTrends = englishTrends.slice(0, 3);
+
+        // Get today's date in YYYY-MM-DD format
+        const today = new Date();
+        today.setDate(today.getDate() - 1); // Subtract 1 day
+        const startDate = today.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+
+        // Fetch media URLs and text for each trend
+        const mediaPromises = topThreeTrends.map(async (trend) => {
+            try {
+                const query = trend.name;
+                const searchUrl = `https://${process.env.API_HOST}/search/search`;
+                const searchOptions = {
+                    method: 'GET',
+                    url: searchUrl,
+                    params: {
+                        query,
+                        section: "top",
+                        start_date: startDate,
+                    },
+                    headers: {
+                        'x-rapidapi-key': process.env.API_KEY,
+                        'x-rapidapi-host': process.env.API_HOST
+                    },
+                };
+
+                const searchResponse = await axios.request(searchOptions);
+                const searchData = searchResponse.data.results;
+
+                // Ensure searchData is an array before filtering
+                if (Array.isArray(searchData)) {
+                    // Filter out trends without media URLs
+                    const validResults = searchData.filter(result => 
+                        result.media_url && Array.isArray(result.media_url) && result.media_url.length > 0
+                    );
+
+                    let mediaUrl = null;
+                    let text = null;
+
+                    if (validResults.length > 0) {
+                        const firstValidResult = validResults[0];
+                        mediaUrl = firstValidResult.media_url.find(url => url) || null; // Get the first valid URL
+                        text = firstValidResult.text || null; // Capture the text
+                    }
+
+                    return {
+                        trend: trend.name,
+                        media_url: mediaUrl, // Return the media URL or null if not found
+                        text: text, // Return the text or null if not found
+                    };
+                } else {
+                    // If searchData is not an array, log and return null for this trend
+                    console.log(`No media data found for trend "${trend.name}"`);
+                    return {
+                        trend: trend.name,
+                        media_url: null, // No valid media URL for this trend
+                        text: null, // No valid text for this trend
+                    };
+                }
+            } catch (searchError) {
+                console.error(`Error fetching media for trend "${trend.name}":`, searchError.message);
+                return {
+                    trend: trend.name,
+                    media_url: null, // If error occurs, return null
+                    text: null, // If error occurs, return null
+                };
+            }
+        });
+
+        // Wait for all media fetches to complete
+        const mediaData = await Promise.all(mediaPromises);
+
+        // Filter out trends with `null` media URLs and text until we have exactly three
+        let validTrends = mediaData.filter(trend => trend.media_url !== null && trend.text !== null);
+
+        while (validTrends.length < 3 && englishTrends.length > 0) {
+            const nextTrend = englishTrends.find(trend => !mediaData.some(t => t.trend === trend.name && t.media_url !== null && t.text !== null));
+            if (nextTrend) {
+                const query = nextTrend.name;
+                const searchUrl = `https://${process.env.API_HOST}/search/search`;
+                const searchOptions = {
+                    method: 'GET',
+                    url: searchUrl,
+                    params: {
+                        query,
+                        section: "top",
+                        start_date: startDate,
+                    },
+                    headers: {
+                        'x-rapidapi-key': process.env.API_KEY,
+                        'x-rapidapi-host': process.env.API_HOST
+                    },
+                };
+
+                const searchResponse = await axios.request(searchOptions);
+                const searchData = searchResponse.data.results;
+
+                // Ensure searchData is an array before filtering
+                if (Array.isArray(searchData)) {
+                    const validResults = searchData.filter(result => 
+                        result.media_url && Array.isArray(result.media_url) && result.media_url.length > 0
+                    );
+
+                    if (validResults.length > 0) {
+                        const firstValidResult = validResults[0];
+                        validTrends.push({
+                            trend: nextTrend.name,
+                            media_url: firstValidResult.media_url.find(url => url) || null,
+                            text: firstValidResult.text || null,
+                        });
+                    }
+                }
+            }
+        }
+
+        const finalTrends = validTrends.slice(0, 3); // Limit to exactly three trends
+        return new ResponseHandler(res, 200, true, "", finalTrends);
+    } catch (error) {
+        console.error("Error fetching Twitter trends:", error.message);
+        return next(new ErrorHandler(error.message, 500));
+    }
+};
+
+
+
+
