@@ -20,7 +20,7 @@ router.put("/change/password", updateUserPassword)
 router.post("/verify/token", verifyToken)
 
 // admin access
-router.get("/get/all", getAllUsers)
+router.get("/get/all", authorized, getAllUsers)
 
 router.put("/update/admin-status/:id", updateAdminStatus)
 

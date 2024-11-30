@@ -60,6 +60,23 @@ export const updateSuggestedCategory = async (req, res, next) => {
     }
 };
 
+
+// Delete SuggestedCategory
+export const deleteSuggestedCategory = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+
+        const category = await SuggestedCategory.findByIdAndDelete(id);
+        if (!category) {
+            return next(new ErrorHandler("Suggested category not found.", 404));
+        }
+
+        return new ResponseHandler(res, 200, true, "Suggested category deleted successfully!")
+    } catch (error) {
+        return next(new ErrorHandler(error.message, 500));
+    }
+};
+
 export const getSuggestedCategory = async (req, res, next) => {
     try {
         const categories = await SuggestedCategory.find().sort({createdAt: -1});

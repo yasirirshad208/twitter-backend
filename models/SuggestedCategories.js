@@ -33,5 +33,5 @@ const SugeestedCategorySchema = new mongoose.Schema(
     }
 );
 
-const NewsCategory = mongoose.model("SuggestedCategory", SugeestedCategorySchema);
-export default NewsCategory;
+const SuggestedCategory = mongoose.model("SuggestedCategory", SugeestedCategorySchema);
+export default SuggestedCategory;

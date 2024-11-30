@@ -220,12 +220,13 @@ export const verifyToken = async(req,res,next)=>{
         
           const user = await User.findById(decodedData.id);
 
-        return new ResponseHandler(res, 200, true, `Token is valid`)
+        return new ResponseHandler(res, 200, true, `Token is valid`, {isAdmin:user.isAdmin})
 
     } catch (error) {
         return next(new ErrorHandler(error.message, 500));
     }
 }
+
 
 export const getAllUsers = async(req,res,next)=>{
     try {

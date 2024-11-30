@@ -9,6 +9,7 @@ import twitterRoute from "./routes/twitter.js"
 import subscribeRoute from "./routes/subscribe.js"
 import newsCategoryRoute from "./routes/newsCategory.js"
 import suggestedCategoryRoute from "./routes/suggestedCategories.js"
+import favouriteRoute from "./routes/favourite.js"
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -29,6 +30,8 @@ connectDatabase()
 
 
 app.use('/api/user', userRoute);
+
+app.use('/api/favourite', favouriteRoute);
 
 app.use('/api/news-category', newsCategoryRoute);
 
