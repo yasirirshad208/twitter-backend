@@ -5,11 +5,14 @@ import ResponseHandler from "../utils/responseHandler.js";
 // Add SuggestedCategory
 export const addSuggestedCategory = async (req, res, next) => {
     try {
-        const { category, title, description, date, showAtHeader } = req.body;
+        const { category, title, description, date, showAtHeader, accounts } = req.body;
+        const parsedAccounts = Array.isArray(accounts) ? accounts : accounts.split(',').map(a => a.trim());
+
 
         if (!req.file) {
             return next(new ErrorHandler("Image is required.", 400));
         }
+        
 
         const newCategory = new SuggestedCategory({
             title,
@@ -17,6 +20,7 @@ export const addSuggestedCategory = async (req, res, next) => {
             category,
             date,
             showAtHeader,
+            accounts:parsedAccounts,
             image: req.file.path, // Save the path of the uploaded image
         });
 

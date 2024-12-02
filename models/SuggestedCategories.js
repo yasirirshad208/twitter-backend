@@ -14,6 +14,9 @@ const SugeestedCategorySchema = new mongoose.Schema(
             type:String,
             required:true
         },
+        accounts:{
+            type:[String],
+        },
         image:{
             type:String,
             required:true,

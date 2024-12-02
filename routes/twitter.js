@@ -1,5 +1,5 @@
 import express from 'express';
-import { addTrend, deleteTrend, getTwitterTrends, search, searchContinuation, tweetDetails, tweetReplies, tweetRepliesContinuation, updateTrend, userDetails, userFollowers, userFollowersContinuation, userFollowing, userFollowingContinuation, userLikes, userLikesContinuation, userTweets, userTweetsContinuation } from '../controllers/twitter.js';
+import { addTrend, aiArticle, deleteTrend, getTwitterTrends, search, searchContinuation, tweetDetails, tweetReplies, tweetRepliesContinuation, updateTrend, userDetails, userFollowers, userFollowersContinuation, userFollowing, userFollowingContinuation, userLikes, userLikesContinuation, userTweets, userTweetsContinuation } from '../controllers/twitter.js';
 import { authorized } from '../middleware/auth.js';
 
 
@@ -41,6 +41,8 @@ router.put("/trend/update/:id", authorized, updateTrend);
 router.delete("/trend/delete/:id", authorized, deleteTrend);
 
 router.get("/trending/categories", getTwitterTrends);
+
+router.post("/category/article", aiArticle);
 
 export default router;
 
