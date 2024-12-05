@@ -39,7 +39,7 @@ export const userTweets = async(req, res, next)=>{
             params: {
                 username,
                 limit,
-                include_replies:true,
+                include_replies:false ,
                 include_pinned:true
             },
             headers: {
@@ -702,39 +702,41 @@ export const aiArticle = async (req, res, next) => {
     //     ],
     //   });
 
-    const url = `https://cheapest-gpt-4-turbo-gpt-4-vision-chatgpt-openai-ai-api.p.rapidapi.com/v1/chat/completions`;
-        const options = {
-          method: 'POST',
-          url,
-          headers: {
-            'x-rapidapi-key': process.env.GPT_KEY,
-            'x-rapidapi-host': 'cheapest-gpt-4-turbo-gpt-4-vision-chatgpt-openai-ai-api.p.rapidapi.com',
-            'Content-Type': 'application/json'
-          },
-          data:{
-            messages: [
-                {
-                  role: "system",
-                  content: "You are an assistant generating articles from tweets.",
-                },
-                {
-                  role: "user",
-                  content: `Write an article based on these tweets:\n\n${textPayload}`,
-                },
-              ],
-              model: 'gpt-4o',
-    max_tokens: 100,
-    temperature: 0.9
-          }
-        };
+    // const url = `https://cheapest-gpt-4-turbo-gpt-4-vision-chatgpt-openai-ai-api.p.rapidapi.com/v1/chat/completions`;
+    //     const options = {
+    //       method: 'POST',
+    //       url,
+    //       headers: {
+    //         'x-rapidapi-key': process.env.GPT_KEY,
+    //         'x-rapidapi-host': 'cheapest-gpt-4-turbo-gpt-4-vision-chatgpt-openai-ai-api.p.rapidapi.com',
+    //         'Content-Type': 'application/json'
+    //       },
+    //       data:{
+    //         messages: [
+    //             {
+    //               role: "system",
+    //               content: "You are an assistant generating articles from tweets.",
+    //             },
+    //             {
+    //               role: "user",
+    //               content: `Write an article based on these tweets:\n\n${textPayload}`,
+    //             },
+    //           ],
+    //           model: 'gpt-4o',
+    // max_tokens: 100,
+    // temperature: 0.9
+    //       }
+    //     };
   
-        const response = await axios.request(options);
+        // const response = await axios.request(options);
   
-      const generatedArticle = response.data.choices[0].message.content;
+    //   const generatedArticle = response.data.choices[0].message.content;
+
+    //   console.log(textPayload)
   
       // Send response to user
       return res.status(200).json({
-        article: generatedArticle,
+        article: combinedText,
         images: selectedImages,
       });
     } catch (error) {
