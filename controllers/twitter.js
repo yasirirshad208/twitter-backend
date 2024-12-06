@@ -680,10 +680,17 @@ export const aiArticle = async (req, res, next) => {
   
       // Limit to 5 images
       const selectedImages = combinedImages.slice(0, 5);
+
+      const cText = combinedText.filter(line => line.trim() !== '').join('\n');
+
+
    
-  
+      const textPayload = cText.replace(/["']/g, '');
+     
       // Combine text for ChatGPT
-      const textPayload = combinedText.join('\n');
+    //   const sanitizedTextPayload = textPayload.join('\n');
+
+    //   const sanitizedTextPayload = textPayload.replace(/["']/g, '');
 
     
   
@@ -702,47 +709,52 @@ export const aiArticle = async (req, res, next) => {
     //     ],
     //   });
 
-    // const url = `https://cheapest-gpt-4-turbo-gpt-4-vision-chatgpt-openai-ai-api.p.rapidapi.com/v1/chat/completions`;
-    //     const options = {
-    //       method: 'POST',
-    //       url,
-    //       headers: {
-    //         'x-rapidapi-key': process.env.GPT_KEY,
-    //         'x-rapidapi-host': 'cheapest-gpt-4-turbo-gpt-4-vision-chatgpt-openai-ai-api.p.rapidapi.com',
-    //         'Content-Type': 'application/json'
-    //       },
-    //       data:{
-    //         messages: [
-    //             {
-    //               role: "system",
-    //               content: "You are an assistant generating articles from tweets.",
-    //             },
-    //             {
-    //               role: "user",
-    //               content: `Write an article based on these tweets:\n\n${textPayload}`,
-    //             },
-    //           ],
+    const url = `https://chatgpt-vision1.p.rapidapi.com/gpt4`;
+        const options = {
+          method: 'POST',
+          url,
+          headers: {
+            'x-rapidapi-key': process.env.GPT_KEY,
+            'x-rapidapi-host': 'chatgpt-vision1.p.rapidapi.com',
+            'Content-Type': 'application/json'
+          },
+          data:{
+            messages: [
+                // {
+                //   role: "system",
+                //   content: "You are an assistant generating articles from tweets.",
+                // },
+                {
+                  role: "user",
+                  content: `Write a combined article of 2000 words based on these tweets. Make multiple headings and paragraphs give html code in h2 an p tags:  ${textPayload}`,
+                },
+              ],
+              web_access:false
     //           model: 'gpt-4o',
     // max_tokens: 100,
     // temperature: 0.9
-    //       }
-    //     };
+          }
+        };
   
-        // const response = await axios.request(options);
+        const response = await axios.request(options);
   
-    //   const generatedArticle = response.data.choices[0].message.content;
+      const generatedArticle = response.data.result; 
 
-    //   console.log(textPayload)
   
       // Send response to user
       return res.status(200).json({
-        article: combinedText,
+        article: generatedArticle.replace("```html", ""),
         images: selectedImages,
       });
     } catch (error) {
       return next(new ErrorHandler(error.message, 500));
     }
   };
+
+
+
+
+
 
 
 
