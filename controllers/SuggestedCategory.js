@@ -37,8 +37,11 @@ export const addSuggestedCategory = async (req, res, next) => {
 export const updateSuggestedCategory = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { title, description, date, showAtHeader } = req.body;
+        const { title, description, accounts, date, showAtHeader } = req.body;
         const cat = req.body.category
+
+        
+        const parsedAccounts = Array.isArray(accounts) ? accounts : accounts.split(',').map(a => a.trim());
 
         const category = await SuggestedCategory.findById(id);
         if (!category) {
@@ -51,6 +54,7 @@ export const updateSuggestedCategory = async (req, res, next) => {
         category.description = description || category.description;
         category.title = title || category.title;
         category.showAtHeader = showAtHeader || category.showAtHeader
+        category.accounts = parsedAccounts || category.accounts
 
         // If there's a new image, replace the old one
         if (req.file) {
