@@ -5,7 +5,7 @@ import ResponseHandler from "../utils/responseHandler.js";
 // Add SuggestedCategory
 export const addSuggestedCategory = async (req, res, next) => {
     try {
-        const { category, title, description, date, showAtHeader, accounts } = req.body;
+        const { category, title, description, date, showAtHeader, accounts, chatgptInstructions } = req.body;
         const parsedAccounts = Array.isArray(accounts) ? accounts : accounts.split(',').map(a => a.trim());
 
 
@@ -20,6 +20,7 @@ export const addSuggestedCategory = async (req, res, next) => {
             category,
             date,
             showAtHeader,
+            chatgptInstructions,
             accounts:parsedAccounts,
             image: req.file.path, // Save the path of the uploaded image
         });
@@ -37,7 +38,7 @@ export const addSuggestedCategory = async (req, res, next) => {
 export const updateSuggestedCategory = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { title, description, accounts, date, showAtHeader } = req.body;
+        const { title, description, accounts, date, showAtHeader, chatgptInstructions } = req.body;
         const cat = req.body.category
 
         
@@ -55,6 +56,7 @@ export const updateSuggestedCategory = async (req, res, next) => {
         category.title = title || category.title;
         category.showAtHeader = showAtHeader || category.showAtHeader
         category.accounts = parsedAccounts || category.accounts
+        category.chatgptInstructions = chatgptInstructions || category.chatgptInstructions
 
         // If there's a new image, replace the old one
         if (req.file) {

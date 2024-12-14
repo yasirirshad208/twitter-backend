@@ -447,35 +447,6 @@ export const deleteTrend = async(req, res, next)=>{
     }
 }
 
-// export const getTwitterTrends = async (req, res, next) => {
-//     try {
-//         const url = `https://${process.env.API_HOST}/trends/`;
-//         const options = {
-//             method: 'GET',
-//             url,
-//             params: {
-//                 woeid: 1,  // Worldwide trends
-//             },
-//             headers: {
-//                 'x-rapidapi-key': process.env.API_KEY,
-//                 'x-rapidapi-host': process.env.API_HOST
-//             },
-//         };
-
-//         const response = await axios.request(options);
-//         const data = response.data;
-
-//         // Function to check if the trend name is in English
-//         const isEnglish = (text) => /^[A-Za-z0-9\s#]+$/.test(text);
-
-//         // Filter trends that are in English
-//         const englishTrends = data[0].trends.filter((trend) => isEnglish(trend.name));
-
-//         return new ResponseHandler(res, 200, true, "", englishTrends);
-//     } catch (error) {
-//         return next(new ErrorHandler(error.message, 500));
-//     }
-// };
 
 
 export const getTwitterTrends = async (req, res, next) => {
@@ -637,6 +608,19 @@ export const aiArticle = async (req, res, next) => {
 
       const cat = await SuggestedCategory.findOne({ category: new RegExp(`^${category}$`, 'i') });
 
+      if (cat.articleTime) {
+        const currentTime = new Date();
+        const oneHourAgo = new Date(currentTime - 60 * 60 * 1000); // 1 hour in milliseconds
+    
+        
+        if (cat.articleTime > oneHourAgo) {
+            return res.status(200).json({
+                article: cat.article,
+                images: cat.articleImages,
+              }); 
+        }
+      }
+
   const accounts = cat.accounts
 
       const combinedText = [];
@@ -686,28 +670,6 @@ export const aiArticle = async (req, res, next) => {
 
    
       const textPayload = cText.replace(/["']/g, '');
-     
-      // Combine text for ChatGPT
-    //   const sanitizedTextPayload = textPayload.join('\n');
-
-    //   const sanitizedTextPayload = textPayload.replace(/["']/g, '');
-
-    
-  
-      // Generate article using ChatGPT
-    //   const gptResponse = await openai.createChatCompletion({
-    //     model: "gpt-4",
-    //     messages: [
-    //       {
-    //         role: "system",
-    //         content: "You are an assistant generating articles from tweets.",
-    //       },
-    //       {
-    //         role: "user",
-    //         content: `Write an article based on these tweets:\n\n${textPayload}`,
-    //       },
-    //     ],
-    //   });
 
     const url = `https://chatgpt-vision1.p.rapidapi.com/gpt4`;
         const options = {
@@ -720,19 +682,12 @@ export const aiArticle = async (req, res, next) => {
           },
           data:{
             messages: [
-                // {
-                //   role: "system",
-                //   content: "You are an assistant generating articles from tweets.",
-                // },
                 {
                   role: "user",
-                  content: `Write a combined article of 2000 words based on these tweets. Make multiple headings and paragraphs give html code in h2 an p tags:  ${textPayload}`,
+                  content: `${cat.chatgptInstructions}. Make multiple headings and paragraphs give html code in h2 an p tags:  ${textPayload}`,
                 },
               ],
               web_access:false
-    //           model: 'gpt-4o',
-    // max_tokens: 100,
-    // temperature: 0.9
           }
         };
   
@@ -740,7 +695,10 @@ export const aiArticle = async (req, res, next) => {
   
       const generatedArticle = response.data.result; 
 
-  
+  cat.article = generatedArticle.replace("```html", "")
+  cat.articleImages = selectedImages
+cat.articleTime = new Date()
+  await cat.save()
       // Send response to user
       return res.status(200).json({
         article: generatedArticle.replace("```html", ""),

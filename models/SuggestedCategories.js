@@ -14,6 +14,19 @@ const SugeestedCategorySchema = new mongoose.Schema(
             type:String,
             required:true
         },
+        chatgptInstructions:{
+            type:String,
+            required:true
+        },
+        article:{
+            type:String,
+        },
+        articleTime:{
+            type:Date,
+        },
+        articleImages:{
+            type:[String]
+        },
         accounts:{
             type:[String],
         },
