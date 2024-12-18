@@ -1,8 +1,13 @@
-import mongoose from "mongoose";
+import mongoose, { Mongoose } from "mongoose";
 
 const SugeestedCategorySchema = new mongoose.Schema(
     {
-        category:{
+        categoryId:{
+            type:mongoose.Schema.ObjectId,
+            ref:"Category",
+            required:true
+        },
+        subCategory:{
             type:String,
             required:true
         },

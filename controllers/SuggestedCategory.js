@@ -5,7 +5,7 @@ import ResponseHandler from "../utils/responseHandler.js";
 // Add SuggestedCategory
 export const addSuggestedCategory = async (req, res, next) => {
     try {
-        const { category, title, description, date, showAtHeader, accounts, chatgptInstructions } = req.body;
+        const { categoryId, title, description, date, showAtHeader, accounts, chatgptInstructions, subcategory } = req.body;
         const parsedAccounts = Array.isArray(accounts) ? accounts : accounts.split(',').map(a => a.trim());
 
 
@@ -17,10 +17,11 @@ export const addSuggestedCategory = async (req, res, next) => {
         const newCategory = new SuggestedCategory({
             title,
             description,
-            category,
+            categoryId,
             date,
             showAtHeader,
             chatgptInstructions,
+            subCategory:subcategory,
             accounts:parsedAccounts,
             image: req.file.path, // Save the path of the uploaded image
         });
@@ -38,7 +39,7 @@ export const addSuggestedCategory = async (req, res, next) => {
 export const updateSuggestedCategory = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { title, description, accounts, date, showAtHeader, chatgptInstructions } = req.body;
+        const { title, description, accounts, date, showAtHeader, chatgptInstructions, subCategory } = req.body;
         const cat = req.body.category
 
         
@@ -50,13 +51,14 @@ export const updateSuggestedCategory = async (req, res, next) => {
         }
 
         // Update fields
-        category.category = cat || category.category;
+        category.categoryId = cat || category.categoryId;
         category.date = date || category.date;
         category.description = description || category.description;
         category.title = title || category.title;
         category.showAtHeader = showAtHeader || category.showAtHeader
         category.accounts = parsedAccounts || category.accounts
         category.chatgptInstructions = chatgptInstructions || category.chatgptInstructions
+        category.subCategory = subCategory || category.subCategory
 
         // If there's a new image, replace the old one
         if (req.file) {
@@ -89,7 +91,7 @@ export const deleteSuggestedCategory = async (req, res, next) => {
 
 export const getSuggestedCategory = async (req, res, next) => {
     try {
-        const categories = await SuggestedCategory.find().sort({createdAt: -1});
+        const categories = await SuggestedCategory.find().populate("categoryId").sort({createdAt: -1});
 
         if (!categories) {
             return next(new ErrorHandler("Suggested category not found.", 404));

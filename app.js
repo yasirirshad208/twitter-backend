@@ -10,6 +10,8 @@ import subscribeRoute from "./routes/subscribe.js"
 import newsCategoryRoute from "./routes/newsCategory.js"
 import suggestedCategoryRoute from "./routes/suggestedCategories.js"
 import favouriteRoute from "./routes/favourite.js"
+import categoryRoute from "./routes/category.js"
+import subCategoryRoute from "./routes/subCategories.js"
 import path from "path";
 import { fileURLToPath } from "url";
 
@@ -34,6 +36,10 @@ app.use('/api/user', userRoute);
 app.use('/api/favourite', favouriteRoute);
 
 app.use('/api/news-category', newsCategoryRoute);
+
+app.use('/api/category', categoryRoute);
+
+app.use('/api/sub-category', subCategoryRoute);
 
 app.use('/api/suggested-category', suggestedCategoryRoute);
 

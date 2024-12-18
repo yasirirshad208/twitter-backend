@@ -598,15 +598,15 @@ export const getTwitterTrends = async (req, res, next) => {
 };
 
 export const aiArticle = async (req, res, next) => {
-    const { category } = req.body;
+    const { id } = req.body;
   
     try {
       // Validate inputs
-      if (!category) {
+      if (!id) {
         return next(new ErrorHandler("Category is required", 400));
       }
 
-      const cat = await SuggestedCategory.findOne({ category: new RegExp(`^${category}$`, 'i') });
+      const cat = await SuggestedCategory.findById(id);
 
       if (cat.articleTime) {
         const currentTime = new Date();
